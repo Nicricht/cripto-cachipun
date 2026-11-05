@@ -2,7 +2,6 @@ import {
   BrowserProvider,
   Contract,
   formatEther,
-  parseEther,
   ZeroAddress,
 } from "ethers";
 import {
@@ -18,8 +17,13 @@ import {
   CONTRACT_ADDRESS,
   EXPLORER_ADDRESS,
   SEPOLIA_CHAIN_HEX,
-  SEPOLIA_CHAIN_ID,
 } from "./contract.js";
+import {
+  canClaimByTimeout,
+  getCommitValue,
+  getPlayerRole,
+  isSepoliaChain,
+} from "./game-rules.mjs";
 import "./style.css";
 
 const $ = (selector) => document.querySelector(selector);
@@ -92,14 +96,6 @@ function isEmptyAddress(address) {
   return !address || address.toLowerCase() === ZeroAddress.toLowerCase();
 }
 
-function getRole(address) {
-  if (!gameState || !address) return null;
-  const normalized = address.toLowerCase();
-  if (normalized === gameState.playerA.address.toLowerCase()) return "A";
-  if (normalized === gameState.playerB.address.toLowerCase()) return "B";
-  return null;
-}
-
 function formatRemaining(deadline, now) {
   if (!deadline || deadline === 0) return "--";
   const seconds = Math.max(0, deadline - now);
@@ -168,7 +164,9 @@ async function connectWallet(requestAccess = true) {
       signer = null;
       provider = null;
       game = null;
+      gameState = null;
       isSepolia = false;
+      $("#phase-chip").textContent = "Esperando conexión";
       updateWalletHeader();
       renderAction();
       return;
@@ -181,12 +179,13 @@ async function connectWallet(requestAccess = true) {
 
     provider = new BrowserProvider(window.ethereum);
     const network = await provider.getNetwork();
-    isSepolia = network.chainId === SEPOLIA_CHAIN_ID;
+    isSepolia = isSepoliaChain(network.chainId);
 
     if (!isSepolia) {
       account = accounts[0];
       signer = null;
       game = null;
+      gameState = null;
       updateWalletHeader();
       $("#phase-chip").textContent = "Cambia a Sepolia";
       renderAction();
@@ -256,7 +255,7 @@ async function refreshGame() {
   };
   const blockTime = Number(latestBlock?.timestamp ?? Math.floor(Date.now() / 1000));
   const deadline = Number(phase) === 0 ? Number(joinDeadline) : Number(revealDeadline);
-  const role = getRoleFromPlayers(account, playerA, playerB);
+  const role = getPlayerRole(account, playerA.address, playerB.address);
 
   let localReveal = null;
   let localRevealValid = false;
@@ -293,7 +292,7 @@ async function refreshGame() {
     role,
     localReveal,
     localRevealValid,
-    canClaim: Number(phase) !== 2 && deadline > 0 && blockTime > deadline,
+    canClaim: canClaimByTimeout(phase, blockTime, joinDeadline, revealDeadline),
   };
 
   let balance = null;
@@ -307,14 +306,6 @@ async function refreshGame() {
 
   updateWalletHeader(balance);
   renderGameState();
-}
-
-function getRoleFromPlayers(address, playerA, playerB) {
-  if (!address) return null;
-  const normalized = address.toLowerCase();
-  if (normalized === playerA.address.toLowerCase()) return "A";
-  if (normalized === playerB.address.toLowerCase()) return "B";
-  return null;
 }
 
 function renderGameState() {
@@ -546,25 +537,26 @@ async function commitMove(mode) {
   }
 
   const move = Number($("#move-select")?.value);
-  let value;
+  let key = null;
+  let transaction = null;
 
   try {
+    let enteredAmount = null;
     if (mode === "create") {
-      const input = $("#stake-input")?.value?.trim();
-      if (!input || !/^(?:\d+)(?:\.\d{1,18})?$/.test(input)) {
+      enteredAmount = $("#stake-input")?.value?.trim();
+      if (!enteredAmount || !/^(?:\d+)(?:\.\d{1,18})?$/.test(enteredAmount)) {
         throw new Error("Introduce una apuesta válida en ETH de prueba.");
       }
-      value = parseEther(input);
-      if (value <= 0n || value > parseEther("0.01")) {
-        throw new Error("Para esta primera prueba usa una apuesta mayor que cero y no superior a 0.01 ETH.");
-      }
-    } else {
-      value = gameState.stake;
+    }
+
+    const value = getCommitValue(mode, enteredAmount, gameState.stake);
+    if (mode === "create" && (value <= 0n || value > getCommitValue("create", "0.01", 0n))) {
+      throw new Error("Para esta primera prueba usa una apuesta mayor que cero y no superior a 0.01 ETH.");
     }
 
     const secret = createSecret();
     const commitment = createCommitment(move, secret, account);
-    const key = secretStorageKey(CONTRACT_ADDRESS, account);
+    key = secretStorageKey(CONTRACT_ADDRESS, account);
     saveSecret(window.localStorage, key, {
       move,
       secret,
@@ -572,40 +564,50 @@ async function commitMove(mode) {
     });
 
     showToast("Revisa MetaMask y confirma la apuesta de prueba.");
-    let transaction;
-    try {
-      transaction = await game.comprometer(commitment, { value });
-      showToast("Transacción enviada. Esperando confirmación en Sepolia…");
-      const receipt = await transaction.wait();
-      if (receipt?.status !== 1) throw new Error("La transacción no fue confirmada.");
-    } catch (error) {
-      if (!transaction) clearSecret(window.localStorage, key);
-      throw error;
+    transaction = await game.comprometer(commitment, { value });
+    showToast("Transacción enviada. Esperando confirmación en Sepolia…");
+    const receipt = await transaction.wait();
+    if (receipt?.status !== 1) {
+      clearSecret(window.localStorage, key);
+      throw new Error("La transacción no fue confirmada.");
     }
-
-    showToast("Compromiso confirmado. Tu secreto quedó guardado en este navegador.");
-    await refreshGame();
   } catch (error) {
+    if (!transaction && key) clearSecret(window.localStorage, key);
     showToast(readableError(error), "error");
+    return;
+  }
+
+  showToast("Compromiso confirmado. Tu secreto quedó guardado en este navegador.");
+  try {
+    await refreshGame();
+  } catch {
+    showToast("El compromiso está confirmado en Sepolia. La pantalla se actualizará al recuperar la conexión.", "error");
   }
 }
 
 async function revealMove() {
   if (!game || !gameState?.localReveal || !gameState.localRevealValid) return;
 
+  const key = secretStorageKey(CONTRACT_ADDRESS, account);
   try {
-    const key = secretStorageKey(CONTRACT_ADDRESS, account);
     showToast("Confirma el reveal en MetaMask.");
     const transaction = await game.revelar(
       gameState.localReveal.move,
       gameState.localReveal.secret,
     );
-    await transaction.wait();
+    const receipt = await transaction.wait();
+    if (receipt?.status !== 1) throw new Error("El reveal no fue confirmado.");
     clearSecret(window.localStorage, key);
-    showToast("Jugada revelada. El contrato actualizará el resultado cuando ambos hayan revelado.");
-    await refreshGame();
   } catch (error) {
     showToast(readableError(error), "error");
+    return;
+  }
+
+  showToast("Jugada revelada. El contrato actualizará el resultado cuando ambos hayan revelado.");
+  try {
+    await refreshGame();
+  } catch {
+    showToast("El reveal está confirmado en Sepolia. La pantalla se actualizará al recuperar la conexión.", "error");
   }
 }
 
@@ -615,11 +617,18 @@ async function claimByTimeout() {
   try {
     showToast("Confirma la resolución por tiempo en MetaMask.");
     const transaction = await game.reclamarPorTiempo();
-    await transaction.wait();
-    showToast("La partida fue resuelta por el contrato.");
-    await refreshGame();
+    const receipt = await transaction.wait();
+    if (receipt?.status !== 1) throw new Error("La resolución no fue confirmada.");
   } catch (error) {
     showToast(readableError(error), "error");
+    return;
+  }
+
+  showToast("La partida fue resuelta por el contrato.");
+  try {
+    await refreshGame();
+  } catch {
+    showToast("La resolución está confirmada en Sepolia. La pantalla se actualizará al recuperar la conexión.", "error");
   }
 }
 
