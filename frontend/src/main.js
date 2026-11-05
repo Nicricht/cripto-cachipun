@@ -207,7 +207,7 @@ async function refreshGame() {
   if (!provider) return;
 
   const network = await provider.getNetwork();
-  isSepolia = network.chainId === SEPOLIA_CHAIN_ID;
+  isSepolia = isSepoliaChain(network.chainId);
   if (!isSepolia) {
     gameState = null;
     updateWalletHeader();
