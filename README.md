@@ -110,7 +110,7 @@ El despliegue existente no debe repetirse para usar la interfaz web. Para crear 
 - [x] Contrato Commit-Reveal implementado.
 - [x] Nueve pruebas automatizadas del contrato aprobadas.
 - [x] Contrato desplegado en Sepolia y verificado por Etherscan Exact Match.
-- [ ] Interfaz web y CI frontend verificadas.
+- [x] Interfaz web implementada; 10 pruebas frontend y build de producción aprobados en CI.
 - [ ] Partida completa de extremo a extremo con dos cuentas Sepolia.
 - [ ] Informe técnico PDF.
 - [ ] Pitch NABC de 5 minutos.
