@@ -115,11 +115,13 @@ function updateWalletHeader(balance = null) {
     : "Conectar MetaMask";
 
   const networkPill = $("#network-pill");
-  networkPill.innerHTML = isSepolia
-    ? '<span class="network-dot"></span> Sepolia Testnet'
+  const networkReady = !account || isSepolia;
+  const networkLabel = !account ? "Solo Sepolia" : isSepolia ? "Sepolia Testnet" : "Red incorrecta";
+  networkPill.innerHTML = networkReady
+    ? `<span class="network-dot"></span> ${networkLabel}`
     : '<span class="network-dot" style="background:#ffbd8a;box-shadow:none"></span> Red incorrecta';
-  networkPill.style.color = isSepolia ? "var(--mint)" : "var(--orange)";
-  networkPill.style.borderColor = isSepolia
+  networkPill.style.color = networkReady ? "var(--mint)" : "var(--orange)";
+  networkPill.style.borderColor = networkReady
     ? "rgba(129, 231, 195, 0.22)"
     : "rgba(255, 189, 138, 0.25)";
 }
