@@ -4,7 +4,7 @@
 Provide a browser interface for the already deployed CriptoCachipun instance so two distinct MetaMask accounts can play one complete Piedra, Papel o Tijera match on Ethereum Sepolia.
 
 ## Goals
-- Connect MetaMask and enforce chain ID 11155111 before any write.
+- Connect MetaMask and enforce chain ID 11155111 before any write, rechecking the provider and wallet chain immediately before each transaction.
 - Read the deployed contract state and show players, stake, phase, deadlines, winner and result.
 - Support the existing Commit-Reveal lifecycle: create, join with the exact stake, reveal, and claim after timeout.
 - Generate each player's 32-byte secret locally and persist it in that browser profile so a reload does not lose the reveal material.
