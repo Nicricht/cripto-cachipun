@@ -34,12 +34,14 @@ contract CriptoCachipun {
         bool revelo;
     }
 
+    uint256 public constant PLAZO_ESPERA_SEGUNDO_JUGADOR = 5 minutes;
     uint256 public constant PLAZO_REVELACION = 5 minutes;
 
     Jugador public jugadorA;
     Jugador public jugadorB;
 
     uint256 public apuesta;
+    uint256 public limiteSegundoJugador;
     uint256 public limiteRevelacion;
 
     Fase public fase;
@@ -86,9 +88,11 @@ contract CriptoCachipun {
             });
 
             apuesta = msg.value;
+            limiteSegundoJugador = block.timestamp + PLAZO_ESPERA_SEGUNDO_JUGADOR;
         } else {
             require(jugadorB.cuenta == address(0), "Ya existen dos jugadores");
             require(msg.sender != jugadorA.cuenta, "Debe ser otro jugador");
+            require(block.timestamp <= limiteSegundoJugador, "Plazo para segundo jugador vencido");
             require(msg.value == apuesta, "La apuesta debe coincidir");
 
             jugadorB = Jugador({
@@ -162,6 +166,21 @@ contract CriptoCachipun {
     /// @notice Resuelve el juego cuando vence el plazo de revelación.
     /// @dev Cualquier dirección puede ejecutar esta función una vez vencido el plazo.
     function reclamarPorTiempo() external {
+        // Si nadie se une a A, permite recuperar su apuesta y evita fondos bloqueados.
+        if (fase == Fase.Commit) {
+            require(jugadorA.cuenta != address(0), "No hay compromiso inicial");
+            require(jugadorB.cuenta == address(0), "El segundo jugador ya se unio");
+            require(block.timestamp > limiteSegundoJugador, "El plazo no ha vencido");
+
+            fase = Fase.Terminado;
+            resultado = Resultado.Anulado;
+
+            _transferir(jugadorA.cuenta, apuesta);
+
+            emit JuegoResuelto(address(0), resultado, apuesta);
+            return;
+        }
+
         require(fase == Fase.Reveal, "No hay un juego esperando reveal");
         require(block.timestamp > limiteRevelacion, "El plazo no ha vencido");
 
