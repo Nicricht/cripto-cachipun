@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#17152b" />
+    <meta
+      name="description"
+      content="Juega Piedra, Papel o Tijera con Commit-Reveal sobre Ethereum Sepolia."
+    />
+    <title>Cripto Cachipún | Sepolia</title>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Cripto Cachipún inicio">
+          <span class="brand-mark">✦</span>
+          <span>cripto<span class="brand-accent">cachipún</span></span>
+        </a>
+        <div class="topbar-actions">
+          <span class="network-pill" id="network-pill">
+            <span class="network-dot"></span>
+            Sepolia Testnet
+          </span>
+          <button class="button button-wallet" id="connect-button" type="button">
+            Conectar MetaMask
+          </button>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div class="hero-copy">
+            <span class="eyebrow"><span class="eyebrow-dot"></span> BLOCKCHAIN · COMMIT-REVEAL</span>
+            <h1>Piedra, papel<br /><span>o blockchain.</span></h1>
+            <p>
+              Dos jugadores. Una apuesta idéntica. Jugadas ocultas hasta que
+              ambos estén listos. Todo se resuelve en Sepolia.
+            </p>
+            <div class="hero-tags">
+              <span>♢ Sin dinero real</span>
+              <span>⌁ Contrato verificado</span>
+              <span>◈ Ethereum Sepolia</span>
+            </div>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="orbit orbit-one"></div>
+            <div class="orbit orbit-two"></div>
+            <div class="floating-symbol symbol-rock">✊</div>
+            <div class="floating-symbol symbol-paper">✋</div>
+            <div class="floating-symbol symbol-scissors">✌️</div>
+            <div class="hero-core"><span>VS</span></div>
+            <div class="hero-spark spark-one">✦</div>
+            <div class="hero-spark spark-two">✧</div>
+          </div>
+        </section>
+
+        <section class="wallet-strip">
+          <div class="wallet-ident">
+            <span class="wallet-icon">◈</span>
+            <div>
+              <span class="meta-label">BILLETERA CONECTADA</span>
+              <strong id="wallet-address">No conectada</strong>
+            </div>
+          </div>
+          <div class="wallet-balance">
+            <span class="meta-label">SALDO SEPOLIA</span>
+            <strong id="wallet-balance">-- ETH</strong>
+          </div>
+          <a class="text-link" href="https://sepolia.etherscan.io/" target="_blank" rel="noreferrer">
+            Ver explorador ↗
+          </a>
+        </section>
+
+        <section class="game-section">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">LA PARTIDA</span>
+              <h2>Que comience el juego</h2>
+            </div>
+            <span class="phase-chip" id="phase-chip">Esperando conexión</span>
+          </div>
+
+          <div class="game-grid">
+            <article class="game-card match-card">
+              <div class="card-topline">
+                <span>PARTIDA EN CADENA</span>
+                <span class="live-indicator"><i></i> EN SEPOLIA</span>
+              </div>
+
+              <div class="players">
+                <div class="player-card">
+                  <div class="player-avatar avatar-a">A</div>
+                  <span class="player-label">JUGADOR A</span>
+                  <strong id="player-a">Esperando jugador</strong>
+                  <span class="player-state" id="player-a-state">Aún no se compromete</span>
+                </div>
+                <div class="versus">VS</div>
+                <div class="player-card">
+                  <div class="player-avatar avatar-b">B</div>
+                  <span class="player-label">JUGADOR B</span>
+                  <strong id="player-b">Esperando rival</strong>
+                  <span class="player-state" id="player-b-state">Aún no se compromete</span>
+                </div>
+              </div>
+
+              <div class="match-details">
+                <div>
+                  <span class="meta-label">APUESTA POR JUGADOR</span>
+                  <strong id="stake-value">0 ETH</strong>
+                </div>
+                <div>
+                  <span class="meta-label">POZO TOTAL</span>
+                  <strong id="pot-value">0 ETH</strong>
+                </div>
+                <div>
+                  <span class="meta-label">TIEMPO RESTANTE</span>
+                  <strong id="time-remaining">--</strong>
+                </div>
+              </div>
+
+              <div class="result-banner" id="result-banner" hidden>
+                <span class="result-icon">✦</span>
+                <div>
+                  <span class="meta-label">RESULTADO</span>
+                  <strong id="result-value">Partida finalizada</strong>
+                  <span id="winner-value"></span>
+                </div>
+              </div>
+            </article>
+
+            <article class="game-card action-card">
+              <div class="card-topline">
+                <span>TU SIGUIENTE JUGADA</span>
+                <span class="lock-icon">⌑</span>
+              </div>
+              <div id="action-content" class="action-content">
+                <div class="empty-state">
+                  <div class="empty-icon">◈</div>
+                  <h3>Conecta tu billetera</h3>
+                  <p>Conecta MetaMask en Sepolia para consultar la partida y participar.</p>
+                  <button class="button button-primary" id="connect-inline" type="button">
+                    Conectar billetera
+                  </button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="how-section">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">JUSTO Y TRANSPARENTE</span>
+              <h2>¿Cómo funciona?</h2>
+            </div>
+          </div>
+          <div class="steps-grid">
+            <article class="step-card">
+              <span class="step-number">01</span>
+              <div class="step-icon">◉</div>
+              <h3>Compromete</h3>
+              <p>Tu jugada se convierte en un hash. Nadie puede verla todavía.</p>
+            </article>
+            <article class="step-card">
+              <span class="step-number">02</span>
+              <div class="step-icon">⇄</div>
+              <h3>Únete</h3>
+              <p>El segundo jugador se une con otra billetera y la misma apuesta.</p>
+            </article>
+            <article class="step-card">
+              <span class="step-number">03</span>
+              <div class="step-icon">✧</div>
+              <h3>Revela</h3>
+              <p>Ambos revelan. El contrato verifica los secretos y decide el resultado.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="notice">
+          <span class="notice-icon">!</span>
+          <div>
+            <strong>Importante: conserva tu secreto</strong>
+            <p>
+              El secreto Commit-Reveal se guarda solo en este navegador. No borres
+              los datos del sitio ni cambies de perfil antes de revelar tu jugada.
+              Si lo pierdes, el contrato no puede recuperarlo.
+            </p>
+          </div>
+        </section>
+
+        <footer class="footer">
+          <span>CRIPTO CACHIPÚN · PROYECTO ACADÉMICO</span>
+          <a id="contract-link" href="https://sepolia.etherscan.io/address/0xfb96470312fAA99Cf63186328a5a7e796458c04A#code" target="_blank" rel="noreferrer">
+            Contrato verificado ↗
+          </a>
+          <span>SOLO ETH DE PRUEBA</span>
+        </footer>
+      </main>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

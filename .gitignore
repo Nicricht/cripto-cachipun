@@ -2,6 +2,7 @@ node_modules/
 artifacts/
 cache/
 coverage/
+frontend/dist/
 .env
 .env.*
 !.env.example
