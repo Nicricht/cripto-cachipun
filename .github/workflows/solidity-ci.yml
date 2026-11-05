@@ -1,4 +1,4 @@
-name: Solidity CI
+name: Solidity and Web CI
 
 on:
   push:
@@ -24,5 +24,11 @@ jobs:
       - name: Compile contracts
         run: npm run compile
 
-      - name: Run automated tests
+      - name: Run existing Solidity tests
         run: npm test
+
+      - name: Run frontend helper tests
+        run: npm run test:web
+
+      - name: Build web frontend
+        run: npm run build:web
