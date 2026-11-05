@@ -31,6 +31,7 @@ test("joining always uses the exact on-chain stake", () => {
 
 test("claim is unavailable at the deadline and available only after it", () => {
   assert.equal(canClaimByTimeout(0, 100, 100, 0), false);
+  assert.equal(canClaimByTimeout(0, null, 100, 0), false);
   assert.equal(canClaimByTimeout(0, 101, 100, 0), true);
   assert.equal(canClaimByTimeout(1, 200, 100, 200), false);
   assert.equal(canClaimByTimeout(1, 201, 100, 200), true);
