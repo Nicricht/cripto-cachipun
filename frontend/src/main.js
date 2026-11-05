@@ -97,7 +97,7 @@ function isEmptyAddress(address) {
 }
 
 function formatRemaining(deadline, now) {
-  if (!deadline || deadline === 0) return "--";
+  if (!deadline || deadline === 0 || now === null || now === undefined) return "--";
   const seconds = Math.max(0, deadline - now);
   if (seconds === 0) return "Vencido";
   const minutes = Math.floor(seconds / 60);
@@ -253,7 +253,7 @@ async function refreshGame() {
     move: Number(playerBData[2]),
     revealed: playerBData[3],
   };
-  const blockTime = Number(latestBlock?.timestamp ?? Math.floor(Date.now() / 1000));
+  const blockTime = latestBlock ? Number(latestBlock.timestamp) : null;
   const deadline = Number(phase) === 0 ? Number(joinDeadline) : Number(revealDeadline);
   const role = getPlayerRole(account, playerA.address, playerB.address);
 
