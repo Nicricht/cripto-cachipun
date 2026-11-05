@@ -16,12 +16,14 @@ Permitir que dos jugadores:
 
 - El jugador A registra el primer compromiso y define el monto de la apuesta.
 - El jugador B debe ser una dirección distinta y enviar exactamente el mismo monto.
+- Si B no se une dentro de los **5 minutos** posteriores al primer compromiso, cualquier dirección puede ejecutar `reclamarPorTiempo` para devolver la apuesta a A.
 - El plazo para revelar es de **5 minutos desde el segundo compromiso**.
 - El hash se calcula con el mismo orden y tipos en Solidity y JavaScript: `keccak256(abi.encodePacked(uint8(jugada), secreto, jugador))`.
 - Si ambos revelan, el contrato determina automáticamente el ganador.
 - Si hay empate, cada jugador recupera su apuesta.
-- Si solo un jugador revela dentro del plazo, ese jugador recibe el pozo completo.
-- Si ninguno revela, se devuelve la apuesta a ambos.
+- Si solo un jugador revela dentro del plazo, ese jugador recibe el pozo completo cuando se ejecuta `reclamarPorTiempo`.
+- Si ninguno revela, se devuelve la apuesta a ambos cuando se ejecuta `reclamarPorTiempo`.
+- Cualquier dirección puede activar la resolución por vencimiento. Los pagos dependen del estado guardado en el contrato.
 - El resultado y los pagos quedan registrados mediante eventos.
 - Cada despliegue corresponde a una partida. Para otra partida se despliega una nueva instancia.
 
@@ -74,6 +76,8 @@ Guarda la dirección del contrato y el hash de la transacción para el informe t
 
 - [x] Repositorio creado.
 - [x] Estructura inicial y reglas documentadas.
+- [x] Contrato Commit-Reveal inicial.
+- [x] Pruebas automatizadas iniciales escritas.
 - [ ] Compilación y pruebas locales verificadas.
 - [ ] Despliegue en Sepolia.
 - [ ] Evidencias de ejecución en Etherscan.
