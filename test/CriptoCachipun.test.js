@@ -56,6 +56,23 @@ describe("CriptoCachipun", function () {
     ).to.be.revertedWith("La apuesta debe coincidir");
   });
 
+  it("devuelve la apuesta a A si B nunca se une", async function () {
+    const hashA = crearCompromiso(1, secretoA, jugadorA.address);
+
+    await juego.connect(jugadorA).comprometer(hashA, { value: apuesta });
+
+    await network.provider.send("evm_increaseTime", [301]);
+    await network.provider.send("evm_mine");
+
+    await expect(
+      juego.connect(tercero).reclamarPorTiempo()
+    ).to.changeEtherBalance(jugadorA, apuesta);
+
+    expect(await juego.fase()).to.equal(2n);
+    expect(await juego.resultado()).to.equal(6n);
+    expect(await ethers.provider.getBalance(await juego.getAddress())).to.equal(0n);
+  });
+
   it("rechaza una jugada cuyo secreto no coincide con el hash", async function () {
     await iniciarPartida();
 
