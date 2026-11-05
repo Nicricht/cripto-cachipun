@@ -9,7 +9,7 @@
     "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
     "dev:web": "vite frontend",
     "build:web": "vite build frontend",
-    "test:web": "node --test frontend/src/commitment.test.mjs"
+    "test:web": "node --test frontend/src/commitment.test.mjs frontend/src/game-rules.test.mjs"
   },
   "dependencies": {
     "ethers": "^6.15.0"
