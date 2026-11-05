@@ -31,15 +31,17 @@
 **Files:**
 - Create: `frontend/src/commitment.mjs`
 - Create: `frontend/src/commitment.test.mjs`
+- Create: `frontend/src/game-rules.mjs`
+- Create: `frontend/src/game-rules.test.mjs`
 - Modify: `package.json`
 
 **Interfaces:**
 - Produces `createSecret() -> bytes32`, `createCommitment(move, secret, account) -> bytes32`, `secretStorageKey(contractAddress, account) -> string`, `saveSecret(storage, key, value)`, `loadSecret(storage, key)`, and `clearSecret(storage, key)`.
 
-- [ ] Write tests for Solidity packed encoding, move validation, random 32-byte secrets, account-scoped storage keys and storage round-trip.
-- [ ] Run `npm run test:web` and confirm RED because the helper is not implemented.
-- [ ] Implement the smallest helper module with ethers v6.
-- [ ] Run `npm run test:web` and confirm GREEN.
+- [x] Write tests for Solidity packed encoding, move validation, random 32-byte secrets, account-scoped storage keys, secret persistence, Sepolia-only writes, player-role isolation, exact join stake and timeout boundaries.
+- [x] Run `npm run test:web` and confirm RED before implementing the helpers.
+- [x] Implement the commitment/storage and game-rule helper modules with ethers v6.
+- [x] Run `npm run test:web` and confirm GREEN (10 frontend tests).
 
 ### Task 2: Sepolia dapp and CI integration
 
@@ -47,7 +49,10 @@
 - Create: `frontend/index.html`
 - Create: `frontend/src/contract.js`
 - Create: `frontend/src/main.js`
+- Create: `frontend/src/game-rules.mjs`
+- Create: `frontend/src/game-rules.test.mjs`
 - Create: `frontend/src/style.css`
+- Create: `docs/SEPOLIA_DEPLOYMENT.md`
 - Modify: `.gitignore`
 - Modify: `.github/workflows/solidity-ci.yml`
 - Modify: `README.md`
@@ -57,10 +62,10 @@
 - Contract interface: `comprometer(bytes32)`, `revelar(uint8,bytes32)`, `reclamarPorTiempo()`, getters `jugadorA`, `jugadorB`, `apuesta`, `fase`, `resultado`, `ganador`, `limiteSegundoJugador`, `limiteRevelacion`.
 - Produces a browser interface with wallet connect, Sepolia enforcement, create/join/reveal/claim, state refresh, and Etherscan links.
 
-- [ ] Build the interface and transaction flow without changing contract code.
-- [ ] Add frontend tests and production build to GitHub Actions.
-- [ ] Run `npm run test:web`, `npm run build:web`, `npm run compile`, and `npm test`.
-- [ ] Review the diff and open a DRAFT PR to `main`.
+- [x] Build the interface and transaction flow without changing contract code.
+- [x] Add frontend tests and production build to GitHub Actions.
+- [x] Run `npm run test:web` (10 passing), `npm run build:web`, `npm run compile`, and `npm test` (9 passing) in GitHub Actions.
+- [x] Review the diff and open DRAFT PR #1 to `main`.
 
 ## Completion boundary
-The code/build/CI portion can be completed without signing a transaction. A full on-chain match needs two distinct Sepolia-funded MetaMask accounts and explicit approval of each commit/reveal/claim transaction; do not claim the live match was tested until Etherscan confirms it.
+The code/build/CI portion can be completed without signing a transaction. A full on-chain match needs two distinct Sepolia-funded MetaMask accounts and explicit approval of each commit/reveal/claim transaction; do not claim the live match was tested until Etherscan confirms it. The code/build stage is complete; live play is still pending two funded Sepolia accounts and user-approved MetaMask signatures.
