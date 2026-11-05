@@ -148,6 +148,25 @@ async function switchToSepolia() {
   }
 }
 
+async function assertSepoliaNetwork() {
+  if (!provider || !window.ethereum) {
+    throw new Error("Conecta MetaMask antes de firmar una transacción.");
+  }
+
+  const [chainId, network] = await Promise.all([
+    window.ethereum.request({ method: "eth_chainId" }),
+    provider.getNetwork(),
+  ]);
+
+  if (chainId.toLowerCase() !== SEPOLIA_CHAIN_HEX || !isSepoliaChain(network.chainId)) {
+    isSepolia = false;
+    game = null;
+    updateWalletHeader();
+    renderAction();
+    throw new Error("MetaMask no está en Sepolia. No se envió ninguna transacción.");
+  }
+}
+
 async function connectWallet(requestAccess = true) {
   if (!window.ethereum) {
     showToast("No detecté MetaMask. Instálalo desde metamask.io y vuelve a intentarlo.", "error");
@@ -541,6 +560,7 @@ async function commitMove(mode) {
   let transaction = null;
 
   try {
+    await assertSepoliaNetwork();
     let enteredAmount = null;
     if (mode === "create") {
       enteredAmount = $("#stake-input")?.value?.trim();
@@ -590,6 +610,7 @@ async function revealMove() {
 
   const key = secretStorageKey(CONTRACT_ADDRESS, account);
   try {
+    await assertSepoliaNetwork();
     showToast("Confirma el reveal en MetaMask.");
     const transaction = await game.revelar(
       gameState.localReveal.move,
@@ -615,6 +636,7 @@ async function claimByTimeout() {
   if (!game || !gameState?.canClaim) return;
 
   try {
+    await assertSepoliaNetwork();
     showToast("Confirma la resolución por tiempo en MetaMask.");
     const transaction = await game.reclamarPorTiempo();
     const receipt = await transaction.wait();
