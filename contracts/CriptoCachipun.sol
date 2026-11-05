@@ -130,31 +130,27 @@ contract CriptoCachipun {
         require(block.timestamp <= limiteRevelacion, "Plazo de reveal vencido");
         require(_jugada != Jugada.Ninguna, "Jugada invalida");
 
-        Jugador storage jugador;
-
         if (msg.sender == jugadorA.cuenta) {
-            jugador = jugadorA;
+            require(!jugadorA.revelo, "Ya revelaste");
+            require(
+                calcularCompromiso(_jugada, _secreto, msg.sender) == jugadorA.compromiso,
+                "Hash no coincide"
+            );
+
+            jugadorA.jugada = _jugada;
+            jugadorA.revelo = true;
         } else if (msg.sender == jugadorB.cuenta) {
-            jugador = jugadorB;
+            require(!jugadorB.revelo, "Ya revelaste");
+            require(
+                calcularCompromiso(_jugada, _secreto, msg.sender) == jugadorB.compromiso,
+                "Hash no coincide"
+            );
+
+            jugadorB.jugada = _jugada;
+            jugadorB.revelo = true;
         } else {
             revert("No eres jugador");
         }
-
-        require(!jugador.revelo, "Ya revelaste");
-
-        bytes32 hashCalculado = calcularCompromiso(
-            _jugada,
-            _secreto,
-            msg.sender
-        );
-
-        require(
-            hashCalculado == jugador.compromiso,
-            "Hash no coincide"
-        );
-
-        jugador.jugada = _jugada;
-        jugador.revelo = true;
 
         emit JugadaRevelada(msg.sender, _jugada);
 
