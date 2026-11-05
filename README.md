@@ -71,3 +71,13 @@ Las pruebas automatizadas no reemplazan una auditoría independiente. El contrat
 - [Registro de despliegue](docs/SEPOLIA_DEPLOYMENT.md).
 
 El informe contiene los diez criterios de la pauta, fragmentos explicados, matriz de cobertura y el código Solidity completo como anexo. También deja explícito que no se conservaron los hashes individuales de la partida. Las versiones PDF y DOCX se entregan junto con este repositorio como archivos de la entrega.
+
+
+## Entrega final EP2 · BCY0010
+
+- [Informe técnico final, versión condensada alineada con los 10 indicadores](docs/INFORME_TECNICO_FINAL_10_PAGINAS.md).
+- [Guion de presentación NABC de 5 minutos](docs/GUION_PITCH_NABC_5_MINUTOS.md).
+- [Contrato desplegado y verificado en Sepolia](https://sepolia.etherscan.io/address/0xfb96470312fAA99Cf63186328a5a7e796458c04A#code).
+- [Transacción de despliegue](https://sepolia.etherscan.io/tx/0x2837d5719bf123692ef719fcf7cc387f44dc8ba759413fd2805a3c57d460070c).
+
+El informe PDF de 10 páginas, el editable DOCX y el PowerPoint con evidencias visuales se entregan como archivos de apoyo. No se registraron los hashes individuales de las cuatro transacciones de la partida, por lo que no se inventan.
