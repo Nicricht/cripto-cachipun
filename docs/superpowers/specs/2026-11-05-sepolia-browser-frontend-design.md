@@ -32,7 +32,7 @@ Use a small Vite-served vanilla JavaScript application with ethers v6 and the in
 3. Backend-mediated transactions: rejected because it would add custody/secrets and is unnecessary; MetaMask should sign directly.
 
 ## Acceptance
-- Frontend helper tests cover Solidity-compatible commitment encoding, invalid moves, random secret shape and secret persistence.
+- Frontend helper tests cover Solidity-compatible commitment encoding, invalid moves, random secret shape and secret persistence, Sepolia-only chain gating, player-role isolation, exact on-chain join stake and strict timeout boundaries.
 - CI runs the existing Hardhat compile/tests plus frontend tests and a production frontend build.
 - UI is read-only until MetaMask is connected; every write is Sepolia-only and initiated by a visible user action.
 - Full on-chain match remains pending until two distinct funded Sepolia accounts approve their MetaMask transactions.
