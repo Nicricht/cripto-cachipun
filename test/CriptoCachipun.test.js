@@ -42,7 +42,7 @@ describe("CriptoCachipun", function () {
     expect(await juego.fase()).to.equal(1n);
     expect(await ethers.provider.getBalance(await juego.getAddress()))
       .to.equal(apuesta * 2n);
-    expect(await juego.limiteRevelacion()).to.be.greaterThan(0n);
+    expect(await juego.limiteRevelacion()).to.not.equal(0n);
   });
 
   it("rechaza una segunda apuesta de monto diferente", async function () {
